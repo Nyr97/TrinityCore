@@ -586,7 +586,7 @@ class boss_thorim : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id) override
             {
-                if (type != EFFECT_MOTION_TYPE || id != EVENT_JUMP)
+                if (id != SPELL_LEAP)
                     return;
 
                 ResetThreatList();

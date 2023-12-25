@@ -132,20 +132,20 @@ struct boss_telash_greywing : public BossAI
 
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
-        if (id == EVENT_JUMP)
+        switch (id)
         {
-            if (!_isInCenter)
-            {
+            case SPELL_ABSOLUTE_ZERO_JUMP:
                 DoCastSelf(SPELL_ABSOLUTE_ZERO_DAMAGE);
-                _isInCenter = true;
-            }
-            else
-            {
+                break;
+
+            case SPELL_ABSOLUTE_ZERO_JUMP_BACK:
                 DoCastSelf(SPELL_POWER_ENERGIZE_ICE_POWER_PERIODIC);
                 me->RemoveAurasDueToSpell(SPELL_ABSOLUTE_ZERO_SHIELD);
                 me->SetReactState(REACT_AGGRESSIVE);
-                _isInCenter = false;
-            }
+                break;
+
+            default:
+                break;
         }
     }
 
