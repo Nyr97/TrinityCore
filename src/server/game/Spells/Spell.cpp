@@ -9575,68 +9575,36 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
     if (targets.size() <= maxTargets)
         return;
 
-    // Target priority states (bit indices)
-    // higher value means lower selection priority
-    // current list:
-    // * injured player group members
-    // * injured other players
-    // * injured pets of group members
-    // * injured other pets
-    // * full health player group members
-    // * full health other players
-    // * full health pets of group members
-    // * full health other pets
-    enum
+    // the higher the value the lower the priority is.
+    enum PriorityState : int32_t
     {
-        NOT_GROUPED,
-        NOT_PLAYER,
-        NOT_INJURED,
-        END
+        NotGrouped  = 1 << 0,
+        NotPlayer   = 1 << 1,
+        NotInjured  = 1 << 2
     };
 
-    std::array<std::ptrdiff_t, 1 << END> countsByPriority = {};
-    std::vector<std::pair<WorldObject*, int32>> tempTargets;
-    tempTargets.resize(targets.size());
+    std::vector<std::pair<WorldObject*, int32_t>> tempTargets;
+    tempTargets.reserve(targets.size());
 
-    // categorize each target
-    std::transform(targets.begin(), targets.end(), tempTargets.begin(), [&](WorldObject* target)
+    for (auto* target : targets)
     {
-        int32 negativePoints = 0;
-        if (prioritizeGroupMembersOf && (!target->IsUnit() || target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)))
-            negativePoints |= 1 << NOT_GROUPED;
+        int32_t priority =
+            (prioritizeGroupMembersOf && (!target->IsUnit() || !target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)) ? PriorityState::NotGrouped : 0) |
+            (prioritizePlayers && !target->IsPlayer() && (!target->IsCreature() || !target->ToCreature()->IsTreatedAsRaidUnit()) ? PriorityState::NotPlayer : 0) |
+            (!target->IsUnit() || target->ToUnit()->IsFullHealth() ? PriorityState::NotInjured : 0);
 
-        if (prioritizePlayers && !target->IsPlayer() && (!target->IsCreature() || !target->ToCreature()->IsTreatedAsRaidUnit()))
-            negativePoints |= 1 << NOT_PLAYER;
-
-        if (!target->IsUnit() || target->ToUnit()->IsFullHealth())
-            negativePoints |= 1 << NOT_INJURED;
-
-        ++countsByPriority[negativePoints];
-        return std::make_pair(target, negativePoints);
-    });
-
-    std::sort(tempTargets.begin(), tempTargets.end(), [](std::pair<WorldObject*, int32> const& left, std::pair<WorldObject*, int32> const& right)
-    {
-        return left.second < right.second;
-    });
-
-    std::size_t foundTargets = 0;
-    for (std::ptrdiff_t countForPriority : countsByPriority)
-    {
-        if (foundTargets + countForPriority >= maxTargets)
-        {
-            // shuffle only the lower priority extras
-            // example: our initial target list had 5 injured and 5 full health units and we want to select 7 targets
-            //          we always want to select 5 injured and 2 random full health ones
-            Containers::RandomShuffle(tempTargets.begin() + foundTargets, tempTargets.begin() + foundTargets + countForPriority);
-            break;
-        }
-
-        foundTargets += countForPriority;
+        tempTargets.emplace_back(target, priority);
     }
 
-    targets.resize(maxTargets);
-    std::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), std::mem_fn(&std::pair<WorldObject*, int32>::first));
+    std::stable_sort(tempTargets.begin(), tempTargets.end(), [](const auto& a, const auto& b)
+    {
+        return a.second < b.second;
+    });
+
+    targets.clear();
+
+    for (size_t i = 0; i < maxTargets && i < tempTargets.size(); ++i)
+        targets.push_back(tempTargets[i].first);
 }
 } //namespace Trinity
 
