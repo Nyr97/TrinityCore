@@ -9569,43 +9569,6 @@ bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target) const
 
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
-
-void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf /*= nullptr*/)
-{
-    if (targets.size() <= maxTargets)
-        return;
-
-    // the higher the value the lower the priority is.
-    enum PriorityState : int32_t
-    {
-        NotGrouped  = 1 << 0,
-        NotPlayer   = 1 << 1,
-        NotInjured  = 1 << 2
-    };
-
-    std::vector<std::pair<WorldObject*, int32_t>> tempTargets;
-    tempTargets.reserve(targets.size());
-
-    for (auto* target : targets)
-    {
-        int32_t priority =
-            (prioritizeGroupMembersOf && (!target->IsUnit() || !target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)) ? PriorityState::NotGrouped : 0) |
-            (prioritizePlayers && !target->IsPlayer() && (!target->IsCreature() || !target->ToCreature()->IsTreatedAsRaidUnit()) ? PriorityState::NotPlayer : 0) |
-            (!target->IsUnit() || target->ToUnit()->IsFullHealth() ? PriorityState::NotInjured : 0);
-
-        tempTargets.emplace_back(target, priority);
-    }
-
-    std::stable_sort(tempTargets.begin(), tempTargets.end(), [](const auto& a, const auto& b)
-    {
-        return a.second < b.second;
-    });
-
-    targets.clear();
-
-    for (size_t i = 0; i < maxTargets && i < tempTargets.size(); ++i)
-        targets.push_back(tempTargets[i].first);
-}
 } //namespace Trinity
 
 CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)

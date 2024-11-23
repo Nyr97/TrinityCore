@@ -701,12 +701,12 @@ class spell_pri_circle_of_healing : public SpellScript
         return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
         // Note: we must remove one since target is always chosen.
         uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetCaster()) - 1);
 
-        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
+        GetCaster()->SortTargetsWithPriorityRules(targets, maxTargets);
 
         if (Unit* explicitTarget = GetExplTargetUnit())
             targets.push_front(explicitTarget);
@@ -1212,9 +1212,9 @@ class spell_pri_epiphany : public AuraScript
 // 415676 - Essence Devourer (Heal)
 class spell_pri_essence_devourer_heal : public SpellScript
 {
-    static void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        Trinity::SelectRandomInjuredTargets(targets, 1, true);
+        GetCaster()->SortTargetsWithPriorityRules(targets, 1);
     }
 
     void Register() override
@@ -2501,10 +2501,9 @@ class spell_pri_prayer_of_mending : public SpellScript
 // 155793 - Prayer of Mending (Jump)
 class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_SpellScriptBase
 {
-    static void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        // Note: priority list is a) players b) non-player units. Also, this spell became smartheal in WoD.
-        Trinity::SelectRandomInjuredTargets(targets, 1, true);
+        GetCaster()->SortTargetsWithPriorityRules(targets, 1);
     }
 
     void HandleJump(SpellEffIndex /*effIndex*/) const
@@ -2578,9 +2577,9 @@ class spell_pri_holy_10_1_class_set_2pc_chooser : public spell_pri_prayer_of_men
         return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_AURA });
     }
 
-    static void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        Trinity::SelectRandomInjuredTargets(targets, 1, true);
+        GetCaster()->SortTargetsWithPriorityRules(targets, 1);
     }
 
     void HandleEffectDummy(SpellEffIndex /*effIndex*/) const
@@ -2984,7 +2983,7 @@ class spell_pri_shadow_covenant : public SpellScript
         // we must remove one since explicit target is always added.
         uint32 maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) - 1);
 
-        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
+        GetCaster()->SortTargetsWithPriorityRules(targets, maxTargets);
 
         if (Unit* explicitTarget = GetExplTargetUnit())
             targets.push_front(explicitTarget);
