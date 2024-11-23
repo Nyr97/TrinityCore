@@ -14158,7 +14158,7 @@ std::vector<PriorityRules> Unit::GetPriorityRules(PriorityRulesType type) const
         {
             return CreatePriorityRules
             ({
-                { 1, [this](WorldObject* obj) { return obj->ToUnit()->IsInRaidWith(this->ToUnit()); }},
+                { 1, [this](WorldObject* obj) { return obj->ToUnit()->IsInRaidWith(this); }},
                 { 2, [](WorldObject* obj) { return obj->IsPlayer() || (obj->IsCreature() && obj->ToCreature()->IsTreatedAsRaidUnit()); }},
                 { 4, [](WorldObject* obj) { return obj->IsUnit() && !obj->ToUnit()->IsFullHealth(); }}
             });
