@@ -2123,21 +2123,16 @@ class spell_pri_power_word_radiance : public SpellScript
         // we must add one since explicit target is always chosen.
         uint32 maxTargets = GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) + 1;
 
-        if (targets.size() > maxTargets)
-        {
-            // priority is: a) no Atonement b) injured c) anything else (excluding explicit target which is always added).
-            targets.sort([this, explTarget](WorldObject* lhs, WorldObject* rhs)
-            {
-                if (lhs == explTarget) // explTarget > anything: always true
-                    return true;
-                if (rhs == explTarget) // anything > explTarget: always false
-                    return false;
+        std::vector<PriorityRules> rules = CreatePriorityRules
+        ({
+            { 1, [this](WorldObject* obj) { return obj->ToUnit()->IsInRaidWith(GetCaster()); }},
+            { 2, [](WorldObject* obj) { return obj->IsPlayer() || (obj->IsCreature() && obj->ToCreature()->IsTreatedAsRaidUnit()); }},
+            { 4, [](WorldObject* obj) { return obj->IsUnit() && !obj->ToUnit()->IsFullHealth(); }},
+            { 8, [this](WorldObject* obj) { return obj->ToUnit() && !obj->ToUnit()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, GetCaster()->GetGUID()); }},
+            { 16, [this, explTarget](WorldObject* obj) { return obj->ToUnit() && obj->ToUnit() == explTarget; }}
+        });
 
-                return MakeSortTuple(lhs) > MakeSortTuple(rhs);
-            });
-
-            targets.resize(maxTargets);
-        }
+        GetCaster()->SortTargetsWithPriorityRules(targets, maxTargets, rules);
 
         for (WorldObject* target : targets)
         {
@@ -2162,25 +2157,6 @@ class spell_pri_power_word_radiance : public SpellScript
     }
 
 private:
-    std::tuple<bool, bool> MakeSortTuple(WorldObject* obj) const
-    {
-        return std::make_tuple(IsUnitWithNoAtonement(obj), IsUnitInjured(obj));
-    }
-
-    // Returns true if obj is a unit but has no atonement
-    bool IsUnitWithNoAtonement(WorldObject* obj) const
-    {
-        Unit* unit = obj->ToUnit();
-        return unit && !unit->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, GetCaster()->GetGUID());
-    }
-
-    // Returns true if obj is a unit and is injured
-    static bool IsUnitInjured(WorldObject* obj)
-    {
-        Unit* unit = obj->ToUnit();
-        return unit && !unit->IsFullHealth();
-    }
-
     std::vector<ObjectGuid> _visualTargets;
 };
 

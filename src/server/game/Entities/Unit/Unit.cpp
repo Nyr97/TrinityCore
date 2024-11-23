@@ -14148,8 +14148,6 @@ DeclinedName::DeclinedName(UF::DeclinedNames const& uf)
         name[i] = uf.Name[i];
 }
 
-static std::vector<PriorityRules> CreatePriorityRules(std::initializer_list<PriorityRules> rules) { return { rules }; }
-
 std::vector<PriorityRules> Unit::GetPriorityRules(PriorityRulesType type) const
 {
     switch (type)

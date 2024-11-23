@@ -373,6 +373,8 @@ enum class PriorityRulesType
     SmartHealing                    = 0
 };
 
+static inline std::vector<PriorityRules> CreatePriorityRules(std::initializer_list<PriorityRules> rules) { return { rules }; }
+
 struct DiminishingReturn
 {
     DiminishingReturn() : stack(0), hitTime(0), hitCount(DIMINISHING_LEVEL_1) { }
