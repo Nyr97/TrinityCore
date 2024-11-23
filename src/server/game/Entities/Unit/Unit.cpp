@@ -14179,13 +14179,15 @@ void Unit::SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t
 
     for (WorldObject* target : targets)
     {
+        Unit* unit = target ? target->ToUnit() : nullptr;
+        if (!unit)
+            continue;
+
         int32_t totalPriority = 0;
 
         for (const auto& rule : rules)
-        {
-            if (EvaluatePriorityRule(target, rule))
+            if (rule.condition(unit))
                 totalPriority += rule.weight;
-        }
 
         prioritizedTargets.emplace_back(target, totalPriority);
     }

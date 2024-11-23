@@ -375,8 +375,6 @@ enum class PriorityRulesType
 
 static inline std::vector<PriorityRules> CreatePriorityRules(std::initializer_list<PriorityRules> rules) { return { rules }; }
 
-static inline bool EvaluatePriorityRule(WorldObject* obj, const PriorityRules& rule) { return obj && obj->ToUnit() && rule.condition(obj->ToUnit()); }
-
 struct DiminishingReturn
 {
     DiminishingReturn() : stack(0), hitTime(0), hitCount(DIMINISHING_LEVEL_1) { }
