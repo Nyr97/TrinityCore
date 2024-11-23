@@ -14183,7 +14183,7 @@ void Unit::SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t
 
         for (const auto& rule : rules)
         {
-            if (EvaluateRule(target, rule))
+            if (EvaluatePriorityRule(target, rule))
                 totalPriority += rule.weight;
         }
 
