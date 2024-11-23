@@ -364,7 +364,7 @@ enum UnitTypeMask
 struct PriorityRules
 {
     int32_t weight;
-    std::function<bool(WorldObject*)> condition;
+    std::function<bool(Unit*)> condition;
 };
 
 enum class PriorityRulesType
@@ -374,6 +374,8 @@ enum class PriorityRulesType
 };
 
 static inline std::vector<PriorityRules> CreatePriorityRules(std::initializer_list<PriorityRules> rules) { return { rules }; }
+
+static inline bool EvaluateRule(WorldObject* obj, const PriorityRules& rule) { return obj && obj->ToUnit() && rule.condition(obj->ToUnit()); }
 
 struct DiminishingReturn
 {

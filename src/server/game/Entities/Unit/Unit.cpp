@@ -14156,9 +14156,9 @@ std::vector<PriorityRules> Unit::GetPriorityRules(PriorityRulesType type) const
         {
             return CreatePriorityRules
             ({
-                { 1, [this](WorldObject* obj) { return obj->ToUnit()->IsInRaidWith(this); }},
-                { 2, [](WorldObject* obj) { return obj->IsPlayer() || (obj->IsCreature() && obj->ToCreature()->IsTreatedAsRaidUnit()); }},
-                { 4, [](WorldObject* obj) { return obj->IsUnit() && !obj->ToUnit()->IsFullHealth(); }}
+                { 1, [this](Unit* target) { return target->IsInRaidWith(this); }},
+                { 2, [](Unit* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); }},
+                { 4, [](Unit* target) { return !target->IsFullHealth(); }}
             });
         }
 
@@ -14183,7 +14183,7 @@ void Unit::SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t
 
         for (const auto& rule : rules)
         {
-            if (rule.condition(target))
+            if (EvaluateRule(target, rule))
                 totalPriority += rule.weight;
         }
 

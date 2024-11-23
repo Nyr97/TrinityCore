@@ -2125,11 +2125,11 @@ class spell_pri_power_word_radiance : public SpellScript
 
         std::vector<PriorityRules> rules = CreatePriorityRules
         ({
-            { 1, [this](WorldObject* obj) { return obj->ToUnit()->IsInRaidWith(GetCaster()); }},
-            { 2, [](WorldObject* obj) { return obj->IsPlayer() || (obj->IsCreature() && obj->ToCreature()->IsTreatedAsRaidUnit()); }},
-            { 4, [](WorldObject* obj) { return obj->IsUnit() && !obj->ToUnit()->IsFullHealth(); }},
-            { 8, [this](WorldObject* obj) { return obj->ToUnit() && !obj->ToUnit()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, GetCaster()->GetGUID()); }},
-            { 16, [explTarget](WorldObject* obj) { return obj->ToUnit() && obj->ToUnit() == explTarget; }}
+            { 1,  [this](Unit* target) { return target->IsInRaidWith(GetCaster()); }},
+            { 2,  [](Unit* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); }},
+            { 4,  [](Unit* target) { return !target->IsFullHealth(); }},
+            { 8,  [this](Unit* target) { return !target->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, GetCaster()->GetGUID()); }},
+            { 16, [explTarget](Unit* target) { return target == explTarget; }}
         });
 
         GetCaster()->SortTargetsWithPriorityRules(targets, maxTargets, rules);
