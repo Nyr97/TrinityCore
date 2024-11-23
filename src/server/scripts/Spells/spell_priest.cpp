@@ -2129,7 +2129,7 @@ class spell_pri_power_word_radiance : public SpellScript
             { 2, [](WorldObject* obj) { return obj->IsPlayer() || (obj->IsCreature() && obj->ToCreature()->IsTreatedAsRaidUnit()); }},
             { 4, [](WorldObject* obj) { return obj->IsUnit() && !obj->ToUnit()->IsFullHealth(); }},
             { 8, [this](WorldObject* obj) { return obj->ToUnit() && !obj->ToUnit()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, GetCaster()->GetGUID()); }},
-            { 16, [this, explTarget](WorldObject* obj) { return obj->ToUnit() && obj->ToUnit() == explTarget; }}
+            { 16, [explTarget](WorldObject* obj) { return obj->ToUnit() && obj->ToUnit() == explTarget; }}
         });
 
         GetCaster()->SortTargetsWithPriorityRules(targets, maxTargets, rules);
