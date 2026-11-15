@@ -98,6 +98,8 @@ bool PointMovementGenerator::Initialize(Unit* owner)
     }();
     if (_speed)
         init.SetVelocity(*_speed);
+    if (BaseUnitState == UNIT_STATE_CHARGING)
+        init.SetUnlimitedSpeed();
     if (i_faceTarget)
         init.SetFacing(i_faceTarget);
     if (i_spellEffectExtra)
@@ -167,6 +169,8 @@ bool PointMovementGenerator::Update(Unit* owner, uint32 /*diff*/)
         init.MoveTo(_destination.GetPositionX(), _destination.GetPositionY(), _destination.GetPositionZ(), _generatePath);
         if (_speed) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
             init.SetVelocity(*_speed);
+        if (BaseUnitState == UNIT_STATE_CHARGING)
+            init.SetUnlimitedSpeed();
         init.Launch();
 
         // Call for creature group update
