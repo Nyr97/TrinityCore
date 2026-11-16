@@ -450,7 +450,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModPossessPet,                             //378 SPELL_AURA_MOD_POSSESS_PET
     &AuraEffect::HandleModManaRegenPct,                           //379 SPELL_AURA_MOD_MANA_REGEN_PCT implemented in Player::UpdateManaRegen
     &AuraEffect::HandleNULL,                                      //380
-    &AuraEffect::HandleNULL,                                      //381 SPELL_AURA_MOD_DAMAGE_TAKEN_FROM_CASTER_PET
+    &AuraEffect::HandleNoImmediateEffect,                         //381 SPELL_AURA_MOD_DAMAGE_TAKEN_FROM_CASTER_PET implemented in Unit::SpellDamageBonusTaken and Unit::MeleeDamageBonusTaken
     &AuraEffect::HandleNULL,                                      //382 SPELL_AURA_MOD_PET_STAT_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //383 SPELL_AURA_IGNORE_SPELL_COOLDOWN implemented in SpellHistory::HasCooldown
     &AuraEffect::HandleNULL,                                      //384

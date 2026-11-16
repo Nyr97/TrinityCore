@@ -7085,6 +7085,14 @@ int32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, int
             {
                 return aurEff->GetCasterGUID() == caster->GetGUID() && spellProto->HasLabel(aurEff->GetMiscValue());
             });
+
+            if (caster->IsPet())
+            {
+                TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_TAKEN_FROM_CASTER_PET, [caster](AuraEffect const* aurEff) -> bool
+                {
+                    return aurEff->GetCasterGUID() == caster->GetOwnerGUID();
+                });
+            }
         }
 
         if (damagetype == DOT)
@@ -8196,6 +8204,15 @@ int32 Unit::MeleeDamageBonusTaken(Unit* attacker, int32 pdamage, WeaponAttackTyp
 
     // ..taken
     TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, attacker->GetMeleeDamageSchoolMask());
+
+    // ..taken from the aura caster's pet
+    if (attacker->IsPet())
+    {
+        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_TAKEN_FROM_CASTER_PET, [attacker](AuraEffect const* aurEff) -> bool
+        {
+            return aurEff->GetCasterGUID() == attacker->GetOwnerGUID();
+        });
+    }
 
     // .. taken pct (special attacks)
     if (spellProto)
