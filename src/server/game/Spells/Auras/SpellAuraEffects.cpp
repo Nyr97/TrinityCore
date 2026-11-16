@@ -611,7 +611,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //539 SPELL_AURA_ALLOW_MOUNT_IN_COMBAT implemented in SpellInfo::CanBeUsedInCombat
     &AuraEffect::HandleNULL,                                      //540 SPELL_AURA_MOD_SUPPORT_STAT
     &AuraEffect::HandleModRequiredMountCapabilityFlags,           //541 SPELL_AURA_MOD_REQUIRED_MOUNT_CAPABILITY_FLAGS
-    &AuraEffect::HandleNULL,                                      //542 SPELL_AURA_TRIGGER_SPELL_ON_STACK_AMOUNT
+    &AuraEffect::HandleTriggerSpellOnStackAmount,                 //542 SPELL_AURA_TRIGGER_SPELL_ON_STACK_AMOUNT
     &AuraEffect::HandleNULL,                                      //543
     &AuraEffect::HandleNULL,                                      //544
     &AuraEffect::HandleSetCantSwim,                               //545 SPELL_AURA_MOVE_SET_CANT_SWIM
@@ -5615,6 +5615,24 @@ void AuraEffect::HandleTriggerSpellOnExpire(AuraApplication const* aurApp, uint8
 
     if (caster)
         caster->CastSpell(aurApp->GetTarget(), GetSpellEffectInfo().TriggerSpell, this);
+}
+
+void AuraEffect::HandleTriggerSpellOnStackAmount(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL) || !apply)
+        return;
+
+    TriggerSpellOnStackAmount(aurApp->GetTarget());
+}
+
+void AuraEffect::TriggerSpellOnStackAmount(Unit* target) const
+{
+    // MiscValue - MiscValueB is the stack amount range that triggers the spell
+    uint8 stackAmount = GetBase()->GetStackAmount();
+    if (stackAmount < GetMiscValue() || stackAmount > GetMiscValueB())
+        return;
+
+    target->CastSpell(target, GetSpellEffectInfo().TriggerSpell, this);
 }
 
 void AuraEffect::HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const

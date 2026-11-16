@@ -102,6 +102,9 @@ class TC_GAME_API AuraEffect
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
 
+        // SPELL_AURA_TRIGGER_SPELL_ON_STACK_AMOUNT (542)
+        void TriggerSpellOnStackAmount(Unit* target) const;
+
         SpellEffectInfo const& GetSpellEffectInfo() const { return m_effectInfo; }
 
     private:
@@ -352,6 +355,7 @@ class TC_GAME_API AuraEffect
         void HandleTriggerSpellOnPowerAmount(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleTriggerSpellOnPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleTriggerSpellOnExpire(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleTriggerSpellOnStackAmount(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleStoreTeleportReturnPoint(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleMountRestrictions(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;

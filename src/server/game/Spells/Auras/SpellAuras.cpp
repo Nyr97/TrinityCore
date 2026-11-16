@@ -1113,6 +1113,7 @@ void Aura::DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode)
 
 void Aura::SetStackAmount(uint8 stackAmount)
 {
+    uint8 oldStackAmount = m_stackAmount;
     m_stackAmount = stackAmount;
     Unit* caster = GetCaster();
 
@@ -1131,6 +1132,14 @@ void Aura::SetStackAmount(uint8 stackAmount)
             HandleAuraSpecificMods(aurApp, caster, true, true);
 
     SetNeedClientUpdateForTargets();
+
+    if (stackAmount == oldStackAmount)
+        return;
+
+    for (AuraApplication* aurApp : applications)
+        for (AuraEffect const* aurEff : GetAuraEffects())
+            if (!aurApp->GetRemoveMode() && aurEff->GetAuraType() == SPELL_AURA_TRIGGER_SPELL_ON_STACK_AMOUNT && aurApp->HasEffect(aurEff->GetEffIndex()))
+                aurEff->TriggerSpellOnStackAmount(aurApp->GetTarget());
 }
 
 bool Aura::IsUsingStacks() const
