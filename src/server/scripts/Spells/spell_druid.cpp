@@ -1984,6 +1984,38 @@ class spell_dru_orbital_strike_damage : public SpellScript
     }
 };
 
+// 274902 - Photosynthesis
+class spell_dru_photosynthesis : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && ValidateSpellInfo({ SPELL_DRUID_LIFEBLOOM_FINAL_HEAL });
+    }
+
+    static bool CheckEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetActionTarget()->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, LifebloomClassMask, eventInfo.GetActor()->GetGUID())
+            && roll_chance(aurEff->GetAmount());
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_photosynthesis::CheckEffectProc, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_photosynthesis::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+
+    static constexpr flag128 LifebloomClassMask = { 0x0, 0x1000, 0x0, 0x0 };
+};
+
 // 392303 - Power of the Archdruid
 class spell_dru_power_of_the_archdruid : public AuraScript
 {
@@ -3275,6 +3307,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_orbital_strike);
     RegisterAreaTriggerAI(at_dru_orbital_strike);
     RegisterSpellScript(spell_dru_orbital_strike_damage);
+    RegisterSpellScript(spell_dru_photosynthesis);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
     RegisterSpellScript(spell_dru_pulverize);
